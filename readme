@@ -36,7 +36,7 @@ Implementação:
         - updateLastNode
         - addKey
         - lookupKey
-        - writeFile
+        - formatAndPrintOutput
 	
     O principal método é o feed(), que vai interpretar os comandos do STDIN, e decidir quais
     métodos serão chamados para lidar com cada comando, aceitando os comandos entrada de nodo (E),

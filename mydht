@@ -1,0 +1,190 @@
+#!/usr/bin/env ruby
+
+class MyDht
+    attr_reader :nNodes, :firstNode, :lastNode, :output, :route, :opHashKeys, :opHashRoute
+    def initialize # ok
+        @nNodes = 0
+        @lastNode = 0
+        @firstNode = 0
+        # @data = Array.new # array that receive the data from input file
+        @output = Array.new # array that receive the output to write
+        @route = Array.new # array that receive the route
+        @opHashKeys =  Hash.new # hash that keep the keys of a node
+        @opHashRoute =  Hash.new # hash that keep the route of a node
+    end
+    
+    def feed
+        line = gets
+        i=1
+        while(!line.nil?)
+            print "Linha #{i}: "
+            line = line.delete("\n")
+            opId, op, opA, opB = line.split(" ")
+            case op
+                when "E"
+                    @nNodes+=1
+                    createHash(opId, op, opA.to_i, opB)
+                when "S"
+                    @nNodes-=1
+                    removeHash(opId, op, opA.to_i, opB)
+                when "I"
+                    insert(opB.to_i)
+                    @route = Array.new
+                when "L"
+                    lookup(opA.to_i, opId.to_i, opB.to_i, )
+                    writeFile(opId)
+                    @route = Array.new
+                    @output = Array.new
+            end
+            line=gets
+            i+=1
+        end
+    end
+    
+    def createHash(opId, op, opA, opB) # ok
+        if(opA > @lastNode)
+            @lastNode = opA
+        end
+        if(@firstNode == nil || opA < @firstNode)
+            @firstNode = opA
+        end
+        @opHashKeys[opA] = Array.new
+        @opHashRoute[opA] = createRouteTable(opA)
+        updateTable(opA)
+        updateRouteTable
+    end
+    
+    #Creat route Table
+    def createRouteTable(id) # ok
+        routesMaxSize = Math::log(@nNodes, 2).floor
+        i = 0
+        m = @lastNode.to_s(2).length # bytes to represent the last node
+        routeEntry = (id + (2**i)) % (2**m)
+        routes = Array.new
+        while ((@nNodes > 1) && (routes.size < routesMaxSize)) do
+            for hashIndex in routeEntry .. @lastNode
+                if(@opHashKeys[hashIndex] != nil && @opHashKeys[hashIndex] != "")
+                    routes.push(hashIndex)
+                    routes = routes.uniq
+                    break
+                end
+            end
+            i+=1
+            routeEntry = (id + (2**i)) % (2**m)
+        end
+        return routes.sort
+    end
+    
+    #Update the table of keys after insert a new node
+    def updateTable(key) # ok
+        if(key == @lastNode)
+            keys = @opHashKeys[@firstNode]
+            if(!keys.empty?)
+                fKeys = keys.select{ |a| a > @firstNode && a <= key }
+                keys.delete_if{ |a| a > @firstNode && a <= key } 
+                @opHashKeys[@firstNode] = keys
+                @opHashKeys[key] = fKeys
+            end
+        else
+            for i in (key + 1) .. @lastNode
+                if(@opHashKeys[i] != nil && @opHashKeys[i] != "")
+                    keys = @opHashKeys[i]
+                    if(!keys.empty?)
+                        fKeys = keys.select{ |a| a > i && a <= key }
+                        keys.delete_if{ |a| a > i && a <= key } 
+                        @opHashKeys[i] = keys
+                        @opHashKeys[key] = fKeys
+                    end
+                    break
+                end 
+            end
+        end
+    end
+    
+    def updateRouteTable # ok
+        for i in @firstNode .. @lastnode
+            if(@opHashRoute[i] != nil && @opHashRoute[i] != "")
+                @opHashRoute[i] = createRouteTable(i)
+            end
+        end
+    end
+    
+    # Remove value in hash and update table
+    def removeHash(opId, op, opA, opB) # ok
+        keysArray = @opHashKeys[opA]
+        routeArray =  @opHashRoute[opA]
+        
+        starter = opA
+        if(starter == @lastNode)
+            for i in  (@lastNode - 1) .. 0
+                if(@opHashKeys[i] != nil && @opHashKeys[i] != "")
+                    @lastNode = i
+                    break
+                end
+            end
+            
+            auxArray = @opHashKeys[@fistNode]
+            auxArray.concat(keysArray)
+            auxArray.sort! {|x, y| y <=> x}
+            @opHashKeys[@fistNode] = auxArray
+        else
+            for i in starter .. @lastNode
+                if(@opHashKeys[i] != nil && @opHashKeys[i] != "")
+                    auxArray = @opHashKeys[i]
+                    auxArray.concat(keysArray)
+                    auxArray.sort! {|x, y| y <=> x}
+                    @opHashKeys[i] = auxArray
+                    if(@fistNode == starter)
+                        @fistNode = i
+                    end
+                    break
+                end
+            end
+        end
+        
+        @opHashKeys.delete(opA)
+        @opHashRoute.delete(opA)
+        
+        if(@fistNode == opA)
+            @fistNode = routeArray.first
+        elsif @lastNode == opA
+            updateLastNode
+        end
+        
+        updateRouteTable
+    end
+    
+    # update value of end node
+    def updateLastNode # ok
+        (@lastNode - 1).downto(@firstNode) do |i|
+            if(@opHashKeys[i] != nil && @opHashKeys[i] != "")
+                @lastNode = i
+                break
+            end
+        end
+    end
+    
+    # insert a new key in opHashKeys
+    def insert(key)
+        if(key > @lastNode)
+            nodeKeys = @opHashKeys[@firstNode]
+            nodeKeys.push(key)
+        else
+            for i in key .. @lastNode
+                if( (@opHashKeys[i] != nil) && (@opHashKeys[i] != "") )
+                    nodeKeys = @opHashKeys[i]
+                    nodeKeys.push(key)
+                    @opHashKeys[i] = nodeKeys
+                    break
+                end
+            end
+        end
+            
+    end
+    
+end
+
+
+
+m= MyDht.new
+puts m

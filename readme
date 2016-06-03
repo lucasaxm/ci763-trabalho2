@@ -1,33 +1,33 @@
  +------------------------------------------------------------------+
- | Lucas Affonso X. de Morais - GRR20118372	- Login: laxm11         |
- | 2º Trabalho de CI763 - 2016/1									|
+ | Lucas Affonso X. de Morais - GRR20118372 - Login: laxm11         |
+ | 2º Trabalho de CI763 - 2016/1                                    |
  +------------------------------------------------------------------+
 
 Arquivos:
 
-	- mydht: Implementacao do trabalho em Ruby.
+    - mydht: Implementacao do trabalho em Ruby.
 
 Implementação:
 
-	* Foi implementada uma classe para gerenciar a DHT.
-	* Tal classe possui os seguintes atributos:
-    	- nNodes:
-    	    Número de nós.
-    	- firstNode:
-    	    Primeiro nó.
-    	- lastNode:
-    	    Último nó.
-    	- keysTable:
-    	    Tabela que armazena as chaves pertencentes aos respectivos nós.
-    	- routeTable:
-    	    Tabela de rotas de cada nó.
-    	- route:
-    	    Rota registrada pela execução do lookup.
-    	- output:
-    	    Saída formatada gerada pela execução do lookup.
-	e os seguintes métodos:
-    	- feed():
-    	    preenche a DHT conforme os comandos enviados via STDIN.
+    * Foi implementada uma classe para gerenciar a DHT.
+    * Tal classe possui os seguintes atributos:
+        - nNodes:
+            Número de nós.
+        - firstNode:
+            Primeiro nó.
+        - lastNode:
+            Último nó.
+        - keysTable:
+            Tabela que armazena as chaves pertencentes aos respectivos nós.
+        - routeTable:
+            Tabela de rotas de cada nó.
+        - route:
+            Rota registrada pela execução do lookup.
+        - output:
+            Saída formatada gerada pela execução do lookup.
+    e os seguintes métodos:
+        - feed():
+            preenche a DHT conforme os comandos enviados via STDIN.
         - addNode
         - createRoutesTable
         - updateTable
@@ -37,7 +37,7 @@ Implementação:
         - addKey
         - lookupKey
         - formatAndPrintOutput
-	
+    
     O principal método é o feed(), que vai interpretar os comandos do STDIN, e decidir quais
     métodos serão chamados para lidar com cada comando, aceitando os comandos entrada de nodo (E),
     saída de nodo (S), inclusão de chaves (I), e lookup de chave (L), conforme exigido na
